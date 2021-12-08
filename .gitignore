@@ -1,0 +1,13 @@
+.env
+.project
+.pydevproject
+.settings
+*.pyc
+__pycache__
+*.egg-info
+*.egg
+.data/
+build/
+dist/
+.tox/
+.idea/
