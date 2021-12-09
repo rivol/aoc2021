@@ -11,7 +11,11 @@ def main():
 
     cheapest = None
     for x in range(0, max_x + 1):
-        cost = sum(abs(x - crab_x) for crab_x in start_positions)
+        cost = 0
+        for crab_x in start_positions:
+            dx = abs(x - crab_x)
+            # Moving by dx units cost 1+2+...+dx = dx*(1+dx)/2  (sum of arithmetic sequence)
+            cost += dx * (1 + dx) // 2
         print(f"{x=} {cost=}")
 
         if cheapest is None or cost < cheapest:
