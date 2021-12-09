@@ -51,11 +51,6 @@ def main():
         value = line.strip()
         # line is ((x1, y1), (x2, y2))
         line = [[int(value) for value in pos.split(",")] for pos in value.split(" -> ")]
-        # Ensure  x1 <= x2  and  y1 <= y2
-        if line[0][0] > line[1][0]:
-            line[0][0], line[1][0] = line[1][0], line[0][0]
-        if line[0][1] > line[1][1]:
-            line[0][1], line[1][1] = line[1][1], line[0][1]
         data.append(line)
 
     print("-" * 50)
@@ -71,23 +66,27 @@ def main():
         map.append([0] * map_h)
     # "paint" the map
     for line in data:
-        if line[0][0] == line[1][0]:
-            # runs in y direction
-            for y in range(line[0][1], line[1][1] + 1):
-                map[line[0][0]][y] += 1
-        elif line[0][1] == line[1][1]:
-            # runs in x direction
-            for x in range(line[0][0], line[1][0] + 1):
-                map[x][line[0][1]] += 1
-        else:
-            # skip diagonals
-            continue
+        dx = line[1][0] - line[0][0]
+        dy = line[1][1] - line[0][1]
+
+        dist = max(abs(dx), abs(dy))
+
+        step_x = dx // abs(dx) if dx else 0
+        step_y = dy // abs(dy) if dy else 0
+        for i in range(dist + 1):
+            x = line[0][0] + step_x * i
+            y = line[0][1] + step_y * i
+            map[x][y] += 1
 
     dangers = 0
-    for x in range(map_w):
-        for y in range(map_h):
-            if map[x][y] > 1:
+    for y in range(map_h):
+        for x in range(map_w):
+            vents = map[x][y]
+            print(str(vents) if vents else ".", end="")
+            if vents > 1:
                 dangers += 1
+
+        print()
 
     print("-" * 50)
     print(dangers)
