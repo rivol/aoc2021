@@ -2,16 +2,8 @@ import sys
 from collections import defaultdict
 
 
-def main():
-    fishies = [int(fish) for fish in sys.stdin.read().strip().split(",")]
-    print("-" * 50)
-
-    # Model the fish by keeping track how many have N days left until reproducing, i.e don't track each one separately.
-    state = defaultdict(int)
-    for days in fishies:
-        state[days] += 1
-
-    for day in range(80):
+def sim(state: dict, days: int) -> int:
+    for day in range(days):
         new_state = {i: 0 for i in range(8 + 1)}
 
         for i in range(1, 8 + 1):
@@ -24,8 +16,26 @@ def main():
         total = sum(state.values())
         print(f"after {day+1} days: {total=}")
 
+    return sum(state.values())
+
+
+def main():
+    fishies = [int(fish) for fish in sys.stdin.read().strip().split(",")]
     print("-" * 50)
-    print(sum(state.values()))
+
+    # Model the fish by keeping track how many have N days left until reproducing, i.e don't track each one separately.
+    state = defaultdict(int)
+    for days in fishies:
+        state[days] += 1
+
+    fish_after_80 = sim(state, 80)
+    # this double-prints the counts for the first 80 days :shrug:
+    fish_after_256 = sim(state, 256)
+
+    print("-" * 50)
+    print(fish_after_80)
+    print("-" * 50)
+    print(fish_after_256)
 
 
 if __name__ == "__main__":
