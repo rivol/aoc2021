@@ -1,4 +1,5 @@
 import sys
+from statistics import median
 
 OPENER_TO_CLOSER = {
     "(": ")",
@@ -13,6 +14,12 @@ INVALID_CHAR_SCORES = {
     "}": 1197,
     ">": 25137,
 }
+FIX_CHAR_SCORES = {
+    ")": 1,
+    "]": 2,
+    "}": 3,
+    ">": 4,
+}
 
 
 class CorruptionException(Exception):
@@ -24,7 +31,9 @@ class CorruptionException(Exception):
 
 
 class IncompleteException(Exception):
-    pass
+    def __init__(self, fix: str) -> None:
+        super().__init__()
+        self.fix = fix
 
 
 def parse(expression: str, pos=0) -> int:
@@ -34,7 +43,10 @@ def parse(expression: str, pos=0) -> int:
         opener = expression[pos]
         pos += 1
         # consume nested expressions
-        pos = parse(expression, pos)
+        try:
+            pos = parse(expression, pos)
+        except IncompleteException as e:
+            raise IncompleteException(fix=e.fix + OPENER_TO_CLOSER[opener])
 
         # consume closer
         if expression[pos] != OPENER_TO_CLOSER[opener]:
@@ -42,7 +54,7 @@ def parse(expression: str, pos=0) -> int:
         pos += 1
 
     if pos >= len(expression):
-        raise IncompleteException()
+        raise IncompleteException(fix="")
 
     return pos
 
@@ -51,7 +63,8 @@ def main():
     lines = [line.strip() for line in sys.stdin.readlines()]
     print("-" * 50)
 
-    score = 0
+    corruption_score = 0
+    fix_scores = []
     for line in lines:
         try:
             parse(line)
@@ -60,15 +73,21 @@ def main():
             print(
                 f"corrupted: {line}   (invalid_char: {e.expression[e.pos]} at pos {e.pos}, expected {e.expected}, score: {subscore})"
             )
-            score += subscore
+            corruption_score += subscore
             continue
         except IncompleteException as e:
-            print(f"incomplete: {line}")
+            subscore = 0
+            for char in e.fix:
+                subscore = subscore * 5 + FIX_CHAR_SCORES[char]
+            fix_scores.append(subscore)
+            print(f"incomplete: {line}; fix: {e.fix}, score {subscore}")
             continue
         print(f"good: {line}")
 
     print("-" * 50)
-    print(score)
+    print(corruption_score)
+    print("-" * 50)
+    print(median(fix_scores))
 
 
 if __name__ == "__main__":
