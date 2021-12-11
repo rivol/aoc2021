@@ -62,18 +62,26 @@ def main():
     print_grid(map)
 
     total_flashes = 0
-    for step in range(100):
+    sync_flash = None
+    for step in range(10000):
         print("-" * 50)
         print(f"Step {step}")
 
         flashes = sim(map)
-        total_flashes += flashes
+        if step < 100:
+            total_flashes += flashes
 
         print_grid(map)
         print(f"Total flashes {total_flashes}, this step: {flashes}")
 
+        if flashes == 100:
+            # synchronized flash. we assume this takes place at step >= 100
+            sync_flash = step + 1
+            break
+
     print("-" * 50)
     print(total_flashes)
+    print(sync_flash)
 
 
 if __name__ == "__main__":
