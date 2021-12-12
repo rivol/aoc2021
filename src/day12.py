@@ -15,27 +15,31 @@ def search(edges: List[Tuple[str, str]]):
     for node in connections:
         is_big[node] = node.upper() == node
 
-    # List of nodes to visit. Each is  (node, seen, path)
+    # List of nodes to visit. Each is  (node, seen, small_visited_twice, path)
     # seen is set of nodes
     # path is list of nodes in order of visit
     q = deque()
-    q.append(("start", {"start"}, ["start"]))
+    q.append(("start", {"start"}, False, ["start"]))
 
     full_paths: Set[Tuple] = set()
     while q:
-        node, seen, path = q.popleft()
+        node, seen, small_visited_twice, path = q.popleft()
         # print("  process:  ", node, seen, path)
         next_nodes = connections[node]
 
         for next_node in next_nodes:
+            next_small_visited_twice = small_visited_twice
             if next_node == "end":
                 # print("  path:  ", path, next_node)
                 full_paths.add(tuple([*path, next_node]))
                 continue
             if not is_big[next_node] and next_node in seen:
-                continue
+                if small_visited_twice or next_node == "start":
+                    continue
+                else:
+                    next_small_visited_twice = True
 
-            q.append((next_node, seen | {next_node}, [*path, next_node]))
+            q.append((next_node, seen | {next_node}, next_small_visited_twice, [*path, next_node]))
 
     return full_paths
 
