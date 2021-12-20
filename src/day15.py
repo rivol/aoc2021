@@ -53,6 +53,20 @@ def main():
     map = [[int(char) for char in line.strip()] for line in sys.stdin.readlines()]
     print("-" * 50)
 
+    # Resize map
+    w = len(map[0])
+    h = len(map)
+    big_map = make_grid(w * 5, h * 5, 0)
+    for y in range(w):
+        for x in range(h):
+            for xm in range(0, 5):
+                for ym in range(0, 5):
+                    risk = map[y][x] + xm + ym
+                    if risk > 9:
+                        risk -= 9
+                    big_map[ym * h + y][xm * w + x] = risk
+    map = big_map
+
     pad_map(map, None)
     w = len(map[0])
     h = len(map)
